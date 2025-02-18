@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Simples</title>
+</head>
+<body>
+    <h1>Gerenciamento de Usuários</h1>
+    <form id="userForm">
+        <input type="hidden" id="userId">
+        <input type="text" id="name" placeholder="Nome">
+        <input type="email" id="email" placeholder="Email">
+        <button type="submit">Salvar</button>
+    </form>
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        let users = [];
+        const userForm = document.getElementById('userForm');
+        const userTable = document.getElementById('userTable').querySelector('tbody');
+        
+        userForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userId = document.getElementById('userId').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            if (userId) {
+                updateUser(userId, name, email);
+            } else {
+                createUser(name, email);
+            }
+            
+            userForm.reset();
+        });
+
+        function createUser(name, email) {
+            const userId = users.length ? Math.max(users.map(user => user.id)) + 1 : 1;
+            users.push({ id: userId, name, email });
+            renderUserTable();
+        }
+
+        function readUsers() {
+            return users;
+        }
+
+        function updateUser(id, name, email) {
+            const userIndex = users.findIndex(user => user.id === parseInt(id));
+            if (userIndex !== -1) {
+                users[userIndex].name = name;
+                users[userIndex].email = email;
+                renderUserTable();
+            }
+        }
+
+        function deleteUser(id) {
+            users = users.filter(user => user.id !== id);
+            renderUserTable();
+        }
+
+        function renderUserTable() {
+            userTable.innerHTML = '';
+            readUsers().forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>
+                        <button onclick="editUser(${user.id})">Editar</button>
+                        <button onclick="deleteUser(${user.id})">Excluir</button>
+                    </td>
+                `;
+                userTable.appendChild(row);
+            });
+        }
+
+        function editUser(id) {
+            const user = users.find(user => user.id === id);
+            if (user) {
+                document.getElementById('userId').value = user.id;
+                document.getElementById('name').value = user.name;
+                document.getElementById('email').value = user.email;
+            }
+        }
+    </script>
+</body>
+</html>
